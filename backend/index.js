@@ -40,8 +40,15 @@ app.use(
   })
 );
 
-let qrCodeData;
 let isClientReady = false;
+
+let qrCodeDataPromise = new Promise((resolve) => {
+  client.on("qr", (qr) => {
+    qrCodeData = qr;
+    console.log("Scan the QR code to log in:", qr);
+    resolve(qr);
+  });
+});
 
 async function sendOrderNotification(shopPhoneNumber, shopName) {
   const message = `Hello ${shopName}, You have a new order Order Number: click on these link below to check\nhttps://ninetyone.co.ke/dashboard-orders`;
@@ -55,13 +62,8 @@ async function sendOrderNotification(shopPhoneNumber, shopName) {
   }
 }
 
-const client = new Client({ authStrategy: new LocalAuth() });
-// const client = new Client();
-
-client.on("qr", (qr) => {
-  qrCodeData = qr;
-  console.log("Scan the QR code to log in:", qr);
-});
+// const client = new Client({ authStrategy: new LocalAuth() });
+const client = new Client();
 
 client.on("ready", () => {
   console.log("WhatsApp Client is ready.");
@@ -90,8 +92,15 @@ app.get("/", function (req, res) {
   res.send("yoo... world!!!!");
 });
 
-app.get("/qr-code", function (req, res) {
-  res.send(`${qrCodeData}`);
+app.get("/qr-code", async function (req, res) {
+  try {
+    // Wait for the promise to resolve and get the QR code data
+    const qrData = await qrCodeDataPromise;
+    res.send(`${qrData}`);
+  } catch (error) {
+    console.error("Error getting QR code data:", error);
+    res.status(500).send("Internal Server Error");
+  }
 });
 
 // announcements to subscribers via whatsapp
@@ -256,7 +265,7 @@ app.post(
   })
 );
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 8000;
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
