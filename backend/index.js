@@ -42,14 +42,6 @@ app.use(
 
 let isClientReady = false;
 
-let qrCodeDataPromise = new Promise((resolve) => {
-  client.on("qr", (qr) => {
-    qrCodeData = qr;
-    console.log("Scan the QR code to log in:", qr);
-    resolve(qr);
-  });
-});
-
 async function sendOrderNotification(shopPhoneNumber, shopName) {
   const message = `Hello ${shopName}, You have a new order Order Number: click on these link below to check\nhttps://ninetyone.co.ke/dashboard-orders`;
 
@@ -64,6 +56,14 @@ async function sendOrderNotification(shopPhoneNumber, shopName) {
 
 // const client = new Client({ authStrategy: new LocalAuth() });
 const client = new Client();
+
+let qrCodeDataPromise = new Promise((resolve) => {
+  client.on("qr", (qr) => {
+    qrCodeData = qr;
+    console.log("Scan the QR code to log in:", qr);
+    resolve(qr);
+  });
+});
 
 client.on("ready", () => {
   console.log("WhatsApp Client is ready.");
