@@ -1,6 +1,0 @@
-2024/01/01-18:31:34.099 284c Reusing MANIFEST C:\Users\USER\Desktop\test\backend\.wwebjs_auth\session\Default\Local Storage\leveldb/MANIFEST-000001
-2024/01/01-18:31:34.100 284c Recovering log #10
-2024/01/01-18:31:34.100 284c Reusing old log C:\Users\USER\Desktop\test\backend\.wwebjs_auth\session\Default\Local Storage\leveldb/000010.log 
-2024/01/01-20:13:08.713 40f0 Level-0 table #14: started
-2024/01/01-20:13:08.735 40f0 Level-0 table #14: 14586 bytes OK
-2024/01/01-20:13:08.744 40f0 Delete type=0 #10
