@@ -87,7 +87,6 @@ app.get("/client-status", function (req, res) {
 });
 
 app.get("/", function (req, res) {
-  res.set("Content-Type", "text/html; charset=utf-8");
   res.send("yoo... world!!!!");
 });
 
