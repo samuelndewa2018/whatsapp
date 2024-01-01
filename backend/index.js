@@ -58,11 +58,18 @@ async function sendOrderNotification(shopPhoneNumber, shopName) {
 const client = new Client();
 
 let qrCodeDataPromise = new Promise((resolve) => {
+  let qrCodeData = "";
+
   client.on("qr", (qr) => {
     qrCodeData = qr;
     console.log("Scan the QR code to log in:", qr);
     resolve(qr);
   });
+
+  // Set a timeout to resolve the promise after a certain time (if needed)
+  setTimeout(() => {
+    resolve(qrCodeData); // Resolve with the current data after a timeout
+  }, 10000); // Timeout in milliseconds (adjust as needed)
 });
 
 client.on("ready", () => {
@@ -94,9 +101,8 @@ app.get("/", function (req, res) {
 
 app.get("/qr-code", async function (req, res) {
   try {
-    // Wait for the promise to resolve and get the QR code data
     const qrData = await qrCodeDataPromise;
-    res.send(`${qrData}`);
+    res.send(qrData);
   } catch (error) {
     console.error("Error getting QR code data:", error);
     res.status(500).send("Internal Server Error");
