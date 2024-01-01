@@ -91,7 +91,6 @@ app.get("/", function (req, res) {
 });
 
 app.get("/qr-code", function (req, res) {
-  res.set("Content-Type", "text/html; charset=utf-8");
   res.send(`${qrCodeData}`);
 });
 
