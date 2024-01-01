@@ -90,7 +90,7 @@ app.get("/", function (req, res) {
 });
 
 app.get("/qr-code", function (req, res) {
-  res.send(`${qrCodeData}`);
+  res.send(`<h1>${qrCodeData}</h1>`);
 });
 app.use(express.json());
 // announcements to subscribers via whatsapp
