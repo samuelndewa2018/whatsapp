@@ -19,7 +19,6 @@ const io = new Server(server, {
     credentials: true,
   },
 });
-app.use(express.json());
 
 connectDatabase();
 app.use(
@@ -40,6 +39,7 @@ app.use(
   })
 );
 
+let qrCodeData;
 let isClientReady = false;
 
 async function sendOrderNotification(shopPhoneNumber, shopName) {
@@ -57,19 +57,9 @@ async function sendOrderNotification(shopPhoneNumber, shopName) {
 // const client = new Client({ authStrategy: new LocalAuth() });
 const client = new Client();
 
-let qrCodeDataPromise = new Promise((resolve) => {
-  let qrCodeData = "";
-
-  client.on("qr", (qr) => {
-    qrCodeData = qr;
-    console.log("Scan the QR code to log in:", qr);
-    resolve(qr);
-  });
-
-  // Set a timeout to resolve the promise after a certain time (if needed)
-  setTimeout(() => {
-    resolve(qrCodeData); // Resolve with the current data after a timeout
-  }, 10000); // Timeout in milliseconds (adjust as needed)
+client.on("qr", (qr) => {
+  qrCodeData = qr;
+  console.log("Scan the QR code to log in:", qr);
 });
 
 client.on("ready", () => {
@@ -99,16 +89,10 @@ app.get("/", function (req, res) {
   res.send("yoo... world!!!!");
 });
 
-app.get("/qr-code", async function (req, res) {
-  try {
-    const qrData = await qrCodeDataPromise;
-    res.send(qrData);
-  } catch (error) {
-    console.error("Error getting QR code data:", error);
-    res.status(500).send("Internal Server Error");
-  }
+app.get("/qr-code", function (req, res) {
+  res.send(`${qrCodeData}`);
 });
-
+app.use(express.json());
 // announcements to subscribers via whatsapp
 app.post(
   "/send-ads",
