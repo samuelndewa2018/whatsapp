@@ -1,5 +1,7 @@
 const express = require("express");
-const { Client, LocalAuth } = require("whatsapp-web.js");
+const bodyParser = require("body-parser");
+const multer = require("multer");
+const { Client, LocalAuth, MessageMedia } = require("whatsapp-web.js");
 const http = require("http");
 const { Server } = require("socket.io");
 const catchAsyncErrors = require("./catchAsyncErrors");
@@ -38,6 +40,19 @@ app.use(
     credentials: true, // email data change
   })
 );
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads");
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.fieldname + "-" + Date.now() + ".jpg"); // Rename the file as needed
+  },
+});
+
+const upload = multer({ storage: storage });
 
 let qrCodeData;
 let isClientReady = false;
@@ -71,11 +86,6 @@ client
   .initialize()
   .then(() => {
     console.log("WhatsApp Client initialized successfully.");
-
-    const shopPhoneNumber = 25472632;
-    const shopName = "craaaaig";
-
-    sendOrderNotification(shopPhoneNumber, shopName);
   })
   .catch((error) => {
     console.error("Error initializing WhatsApp Client:", error);
@@ -90,51 +100,39 @@ app.get("/", function (req, res) {
 });
 
 app.get("/qr-code", function (req, res) {
-  res.send(`<h1>${qrCodeData}</h1>`);
+  res.setHeader("Content-Type", "text/html");
+  res.send(`${qrCodeData}`);
 });
-app.use(express.json());
+
 // announcements to subscribers via whatsapp
-app.post(
-  "/send-ads",
-  catchAsyncErrors(async (req, res, next) => {
+app.post("/send-ads", upload.single("image"), async (req, res) => {
+  try {
+    const { name } = req.body;
+    const imagePath = req.file.path;
+
+    console.log("Name:", name);
+    console.log("Image Path:", imagePath);
+    console.log("File Object:", req.file);
+
+    const chatId = "254712012113@c.us";
     try {
-      const { message } = req.body;
-
-      // Fetch all shops from the database
-      const shops = await Subscriber.find().sort({
-        createdAt: -1,
-      });
-
-      for (const shop of shops) {
-        let { name, phoneNumber } = shop;
-
-        // Check if the phoneNumber starts with "07"
-        if (phoneNumber.startsWith("07")) {
-          // If true, add "254" at the beginning to convert it to the Kenyan format
-          phoneNumber = "254" + phoneNumber.slice(1);
-        }
-
-        await client.sendMessage(
-          `${phoneNumber}@c.us`,
-          `Hello ${name}, ${message}`
-        );
-        // await client.sendMessage(
-        //   "254721315398@c.us",
-        //   `Hello There, ${message}`
-        // );
-
-        console.log("SMS sent successfully to:", phoneNumber);
-      }
-
-      res
-        .status(200)
-        .json({ success: true, message: "Messages sent successfully" });
+      const media = MessageMedia.fromFilePath(imagePath);
+      const caption = `Caption: ${name}`;
+      await client.sendMessage(chatId, media, { caption });
+      res.status(200).json({ message: "Ads sent successfully" });
+      console.log("ad");
     } catch (error) {
-      console.error(error);
-      return next(new ErrorHandler(error.message, 500));
+      console.error("Error sending media:", error);
+      res.status(500).json({ error: "Internal Server Error" });
     }
-  })
-);
+  } catch (error) {
+    // Handle errors
+    console.error("Error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+client.on("debug", console.log);
 
 // announcements to sellers via whatsapp
 app.post(
