@@ -69,8 +69,8 @@ async function sendOrderNotification(shopPhoneNumber, shopName) {
   }
 }
 
-// const client = new Client({ authStrategy: new LocalAuth() });
-const client = new Client();
+const client = new Client({ authStrategy: new LocalAuth() });
+// const client = new Client();
 
 client.on("qr", (qr) => {
   qrCodeData = qr;
