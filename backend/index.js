@@ -15,6 +15,13 @@ const io = new Server(server, {
   cors: {
     origin: "http://localhost:3000",
     methods: ["GET"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "Access-Control-Allow-Credentials",
+      "Access-Control-Allow-Origin",
+    ],
+    credentials: true,
   },
 });
 
