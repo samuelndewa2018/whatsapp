@@ -1,0 +1,7 @@
+[0103/164732.287:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'ambient-light-sensor'.", source:  (0)
+[0103/164732.288:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'bluetooth'.", source:  (0)
+[0103/164732.290:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'gamepad'.", source:  (0)
+[0103/164732.290:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'local-fonts'.", source:  (0)
+[0103/164732.291:INFO:CONSOLE(0)] "Error with Permissions-Policy header: Unrecognized feature: 'window-management'.", source:  (0)
+[0103/164801.396:INFO:CONSOLE(0)] "Uncaught (in promise) TimeoutError", source: https://web.whatsapp.com/WAWebWorker.cabe3b1f4dd26e669166.worker.js (0)
+[0103/164803.362:INFO:CONSOLE(0)] "Uncaught (in promise) TimeoutError", source: https://web.whatsapp.com/WAWebWorker.cabe3b1f4dd26e669166.worker.js (0)
