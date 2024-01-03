@@ -9,16 +9,12 @@ const app = express();
 const cors = require("cors");
 const connectDatabase = require("./Database/database");
 const server = http.createServer(app);
+const PORT = 3001;
 const Shop = require("./model/shop");
 const io = new Server(server, {
   cors: {
-    origin: [
-      "https://www.ninetyone.co.ke",
-      "https://ninetyone.co.ke",
-      "http://localhost:3000",
-    ],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
+    origin: "http://localhost:3000",
+    methods: ["GET"],
   },
 });
 
@@ -42,13 +38,16 @@ app.use(
 );
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+server.listen(3001, () => {
+  console.log("Server is running on port");
+});
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads");
   },
   filename: (req, file, cb) => {
-    cb(null, file.fieldname + "-" + Date.now() + ".jpg"); // Rename the file as needed
+    cb(null, file.fieldname + "-" + Date.now() + ".jpg");
   },
 });
 
@@ -57,17 +56,11 @@ const upload = multer({ storage: storage });
 let qrCodeData;
 let isClientReady = false;
 
-async function sendOrderNotification(shopPhoneNumber, shopName) {
-  const message = `Hello ${shopName}, You have a new order Order Number: click on these link below to check\nhttps://ninetyone.co.ke/dashboard-orders`;
-
-  try {
-    console.log("Attempting to send message to:", `${shopPhoneNumber}@c.us`);
-    await client.sendMessage(`${shopPhoneNumber}@c.us`, message);
-    console.log("Order notification sent successfully.");
-  } catch (error) {
-    console.error("Error sending order notification:", error);
-  }
-}
+io.on("connection", (socket) => {
+  console.log(" Client is ready.");
+  io.emit("clientReady", { isClientReady });
+  console.log("everything", isClientReady);
+});
 
 const client = new Client({ authStrategy: new LocalAuth() });
 // const client = new Client();
@@ -75,11 +68,13 @@ const client = new Client({ authStrategy: new LocalAuth() });
 client.on("qr", (qr) => {
   qrCodeData = qr;
   console.log("Scan the QR code to log in:", qr);
+  io.emit("qr", { qr });
 });
 
 client.on("ready", () => {
   console.log("WhatsApp Client is ready.");
   isClientReady = true;
+  io.emit("clientReady", { isClientReady });
 });
 
 client
@@ -90,18 +85,10 @@ client
   .catch((error) => {
     console.error("Error initializing WhatsApp Client:", error);
   });
-
-app.get("/client-status", function (req, res) {
-  res.json({ isClientReady });
-});
+io.emit("clientError", { error: "Error initializing WhatsApp Client" });
 
 app.get("/", function (req, res) {
   res.send("yoo... world!!!!");
-});
-
-app.get("/qr-code", function (req, res) {
-  res.setHeader("Content-Type", "text/html");
-  res.send(`${qrCodeData}`);
 });
 
 // announcements to subscribers via whatsapp
@@ -114,7 +101,7 @@ app.post("/send-ads", upload.single("image"), async (req, res) => {
     console.log("Image Path:", imagePath);
     console.log("File Object:", req.file);
 
-    const chatId = "254712012113@c.us";
+    const chatId = "254726327352@c.us";
     try {
       const media = MessageMedia.fromFilePath(imagePath);
       const caption = `Caption: ${name}`;
@@ -131,8 +118,6 @@ app.post("/send-ads", upload.single("image"), async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
-
-client.on("debug", console.log);
 
 // announcements to sellers via whatsapp
 app.post(
@@ -252,8 +237,3 @@ app.post(
     }
   })
 );
-
-const PORT = process.env.PORT || 8000;
-server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
