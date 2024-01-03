@@ -13,7 +13,11 @@ const PORT = 3001;
 const Shop = require("./model/shop");
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: [
+      "https://www.ninetyone.co.ke",
+      "https://ninetyone.co.ke",
+      "http://localhost:3000",
+    ],
     methods: ["GET"],
     allowedHeaders: [
       "Content-Type",
