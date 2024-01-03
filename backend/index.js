@@ -69,6 +69,10 @@ let isClientReady = false;
 
 io.on("connection", (socket) => {
   console.log(" Client is ready.");
+  socket.on("connected", (data) => {
+    console.log("connected to the server", data);
+    socket.emit("hello", "hello from the server");
+  });
   io.emit("clientReady", { isClientReady });
   console.log("everything", isClientReady);
 });
