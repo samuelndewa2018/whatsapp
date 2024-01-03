@@ -18,7 +18,7 @@ const io = new Server(server, {
       "https://ninetyone.co.ke",
       "http://localhost:3000",
     ],
-    methods: ["GET"],
+    methods: ["GET", "POST"],
     allowedHeaders: [
       "Content-Type",
       "Authorization",
