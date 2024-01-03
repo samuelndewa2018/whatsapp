@@ -65,7 +65,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 let qrCodeData;
-let isClientReady = false;
+let isClientReady = true;
 
 io.on("connection", (socket) => {
   console.log(" Client is ready.");
